@@ -27,8 +27,6 @@ class IncrementalGraph:
                 name = "X%d" % (i+1)
                 new_node_names.append(name)
                 
-                
-            
         else:
             assert len(new_node_names) == no_of_var, "number of new_node_names  must match number of variables"
         
@@ -44,43 +42,55 @@ class IncrementalGraph:
             node.add_attribute("id", id )
             new_nodes.append(node)
            
-
-        self.initial_skeleton(new_nodes, initial_graph)
+        self.old_nodes = initial_graph.get_nodes()
         
+        self.new_nodes = new_nodes
+        
+        
+        for new_node in self.new_nodes: 
+            initial_graph.add_node(new_node)
+            
         self.G = initial_graph
+        
+        
+        
+       
+        
+        
+        
+       
+        
+        
     
     
-    def undirected(self, initial_graph: GeneralGraph) -> None:
+    def undirected(self) -> None:
         """Eliminate all the directions of the graph, leaving it's skeleton."""
         
         adj: Set[Tuple[Node, Node]] = set()
-        for edge in initial_graph.get_graph_edges():
+        for edge in self.G.get_graph_edges():
             adj.add((edge.get_node1(), edge.get_node2()))
-            initial_graph.remove_edge(edge)
+            self.G.remove_edge(edge)
             
         
         for node1, node2 in adj:
             edge = Edge(node1, node2, Endpoint.CIRCLE, Endpoint.CIRCLE)
-            initial_graph.add_edge(edge)
+            self.G.add_edge(edge)
 
-    def initial_skeleton(self, new_nodes: List[Node], initial_graph: GeneralGraph) -> None:
+    def initial_skeleton(self) -> None:
         """Create the initial skeleton by adding all the new variables in the graph"""
         
-        self.undirected(initial_graph)
+        self.undirected()
         
-        old_nodes = initial_graph.get_nodes()
-        
-        for new_node in new_nodes: 
-            initial_graph.add_node(new_node)
-            for old_node in old_nodes:
+        for new_node in self.new_nodes: 
+            for old_node in self.old_nodes:
                 new_edge = Edge(new_node, old_node , Endpoint.CIRCLE, Endpoint.CIRCLE)
-                initial_graph.add_edge(new_edge)
+                self.G.add_edge(new_edge)
                 
-        for i in range(len(new_nodes)):
-            for j in range(i, len(new_nodes)):
+        for i in range(len(self.new_nodes)):
+            for j in range(i+1, len(self.new_nodes)):
                 #Create complete graph with new nodes
-                new_edge = Edge(new_nodes[i], new_nodes[j] , Endpoint.CIRCLE, Endpoint.CIRCLE)
-                initial_graph.add_edge(new_edge)
+                new_edge = Edge(self.new_nodes[i], self.new_nodes[j] , Endpoint.CIRCLE, Endpoint.CIRCLE)
+                self.G.add_edge(new_edge)
                 
                 
     def neighbors(self, i: int):

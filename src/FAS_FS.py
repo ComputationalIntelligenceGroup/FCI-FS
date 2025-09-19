@@ -81,7 +81,11 @@ def fas_fs(data: ndarray,  independence_test_method: CIT_Base, alpha: float = 0.
     
     sep_sets = initial_sep_sets
     test_results: Dict[Tuple[int, int, Set[int]], float] = {}
+    
     inc_graph = IncrementalGraph( num_new_vars, initial_graph, new_node_names)
+    
+    inc_graph.initial_skeleton()
+    
     current_depth: int = -1
     
     
